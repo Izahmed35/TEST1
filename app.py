@@ -28,7 +28,13 @@ def index():
                     "num_inference_steps": 28
                 }
             )
-            return jsonify({"image_url": output[0]})
+            
+            # Check if output is a list and has at least one item
+            if isinstance(output, list) and len(output) > 0:
+                image_url = output[0]
+                return jsonify({"image_url": image_url})
+            else:
+                return jsonify({"error": "No image URL returned from the model"}), 500
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     return render_template('index.html')
