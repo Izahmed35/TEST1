@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #generateForm {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #prompt {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #imageContainer {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #generatedImage {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        #loadingMessage {
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Image Generator</h1>
+    <form id="generateForm">
+        <input type="text" id="prompt" name="prompt" placeholder="Enter your prompt here" required>
+        <button type="submit">Generate</button>
+    </form>
+    <div id="imageContainer">
+        <p id="loadingMessage"></p>
+        <img id="generatedImage" src="" alt="Generated Image" style="display: none;">
+    </div>
+
+    <script>
+        const form = document.getElementById('generateForm');
+        const promptInput = document.getElementById('prompt');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const generatedImage = document.getElementById('generatedImage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const prompt = promptInput.value;
+            
+            loadingMessage.textContent = 'Generating image...';
+            generatedImage.style.display = 'none';
+
+            try {
+                const response = await axios.post('/', new URLSearchParams({prompt}));
+                const imageUrl = response.data.image_url;
+                
+                generatedImage.src = imageUrl;
+                generatedImage.style.display = 'block';
+                loadingMessage.textContent = '';
+            } catch (error) {
+                loadingMessage.textContent = `Error: ${error.response?.data?.error || error.message}`;
+                generatedImage.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
