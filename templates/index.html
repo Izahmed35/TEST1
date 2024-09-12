@@ -53,9 +53,12 @@
             display: block;
             margin: 0 auto;
         }
-        #loadingMessage {
+        #loadingMessage, #errorMessage {
             text-align: center;
             color: #666;
+        }
+        #errorMessage {
+            color: #ff0000;
         }
     </style>
 </head>
@@ -67,6 +70,7 @@
     </form>
     <div id="imageContainer">
         <p id="loadingMessage"></p>
+        <p id="errorMessage"></p>
         <img id="generatedImage" src="" alt="Generated Image" style="display: none;">
     </div>
 
@@ -74,6 +78,7 @@
         const form = document.getElementById('generateForm');
         const promptInput = document.getElementById('prompt');
         const loadingMessage = document.getElementById('loadingMessage');
+        const errorMessage = document.getElementById('errorMessage');
         const generatedImage = document.getElementById('generatedImage');
 
         form.addEventListener('submit', async (e) => {
@@ -81,18 +86,25 @@
             const prompt = promptInput.value;
             
             loadingMessage.textContent = 'Generating image...';
+            errorMessage.textContent = '';
             generatedImage.style.display = 'none';
 
             try {
                 const response = await axios.post('/', new URLSearchParams({prompt}));
                 const imageUrl = response.data.image_url;
                 
-                generatedImage.src = imageUrl;
-                generatedImage.style.display = 'block';
-                loadingMessage.textContent = '';
+                if (imageUrl) {
+                    generatedImage.src = imageUrl;
+                    generatedImage.style.display = 'block';
+                    loadingMessage.textContent = '';
+                } else {
+                    throw new Error('No image URL returned');
+                }
             } catch (error) {
-                loadingMessage.textContent = `Error: ${error.response?.data?.error || error.message}`;
+                errorMessage.textContent = `Error: ${error.response?.data?.error || error.message || 'Failed to generate image'}`;
                 generatedImage.style.display = 'none';
+            } finally {
+                loadingMessage.textContent = '';
             }
         });
     </script>
